@@ -38,7 +38,13 @@ wq <- left_join(
   summarize(mean_do_mg_l = mean(do_mg_l, na.rm = TRUE),
             mean_salinity_ppt = mean(salinity_ppt, na.rm = TRUE),
             mean_temp_c = mean(temperature_c, na.rm = TRUE)) |> 
-  ungroup()
+  ungroup() |> 
+  mutate(site_name = recode_values(
+    site_name,
+    "venoco_bridge" ~ "Venoco Bridge",
+    "phelps_bridge" ~ "Phelps Bridge",
+    "east_channel" ~ "East Channel"
+  ))
 
 write_csv(wq,
           here("water-quality", "wq_clean.csv"))
