@@ -11,10 +11,15 @@ library(tidyverse)
 library(janitor)
 library(here)
 library(ggridges)
+library(measurements)
 
 metadata <- read_csv(here("water-quality", "YSI_Data_Begin_1.csv"))
 
 data <- read_csv(here("water-quality", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
+
+weather <- read_csv(here("water-quality", "NOAA-weather-data.csv")) |> 
+  mutate(DATE = mdy(DATE)) |> 
+  clean_names()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 # ------------------------------- Cleaning -------------------------------
@@ -44,7 +49,10 @@ wq <- left_join(
     "venoco_bridge" ~ "Venoco Bridge",
     "phelps_bridge" ~ "Phelps Bridge",
     "east_channel" ~ "East Channel"
-  ))
+  )) |> 
+  left_join(weather, by = "date") |> 
+  select(!c(station, name, latitude, longitude, elevation, prcp, tmin)) |> 
+  mutate(tmax = conv_unit(tmax, from = "F", to = "C"))
 
 write_csv(wq,
           here("water-quality", "wq_clean.csv"))
