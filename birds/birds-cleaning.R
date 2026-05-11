@@ -1,6 +1,6 @@
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-# ------------------- Water quality measurement cleaning ----------------- 
+# ------------------------------ Bird cleaning --------------------------- 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -13,12 +13,7 @@ library(here)
 library(ggridges)
 library(measurements)
 
-metadata <- read_csv(here("water-quality", "YSI_Data_Begin_1.csv"))
-
-data <- read_csv(here("water-quality", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
-
-weather <- read_csv(here("weather", "4310193.csv")) |> 
-  clean_names()
+birds <- read_csv(here("birds", "birds.csv"))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 # ------------------------------- Cleaning -------------------------------
@@ -55,53 +50,4 @@ wq <- left_join(
 
 write_csv(wq,
           here("water-quality", "wq_clean.csv"))
-
-
-
-ggplot(data = wq,
-       mapping = aes(x = site_name,
-                     y = mean_salinity_ppt)) +
-  geom_boxplot() 
-
-ggplot(data = wq,
-       mapping = aes(x = mean_temp_c)) +
-  geom_density() +
-  geom_vline(aes(xintercept = mean(mean_temp_c)),
-             color = "red") +
-  geom_vline(aes(xintercept = median(mean_temp_c)),
-             color = "blue") +
-  facet_wrap(~ site_name)
-
-ggplot(data = wq,
-       mapping = aes(x = site_name,
-                     y = mean_temp_c)) +
-  geom_violin()
-
-
-ggplot(data = wq,
-       mapping = aes(x = mean_temp_c,
-                     y = site_name)) +
-  geom_density_ridges(alpha = 0.6) +
-  stat_summary(geom = "point",
-               fun = "median",
-               color = "blue") +
-  stat_summary(geom = "point",
-               fun = "mean",
-               color = "red") +
-  theme_ridges()
-
-wq |> 
-  group_by(site_name) |> 
-  summarize(mean = mean(mean_temp_c),
-            sd = sd(mean_salinity_ppt),
-            median = median(mean_temp_c)) |> 
-  ungroup()
-
-wq |> 
-  group_by(site_name) |> 
-  summarize(mean = mean(mean_salinity_ppt),
-            sd = sd(mean_salinity_ppt),
-            median = median(mean_salinity_ppt)) |> 
-  ungroup()
-
 
